@@ -1,0 +1,223 @@
+Struktura baze za prometne nesreèe (PN):
+
+* številka zadeve - n 9 - to je enoznaèna številka zadeve pod katero policija vodi posamezno prometno nesreèo
+* klasifikacija nesreèe glede na posledice - c 1 (PRPO)
+* upravna enota, na obmoèju katere se je zgodila prometna nesreèa - c 4 (LOOB)
+* datum nesreèe - c 10
+* ura nesreèe - c 5
+* indikator ali se je nesreèa zgodila v naselju (D) ali izven (N) - c 1
+* kategorija ceste na kateri je prišlo do nesreèe - c 1 (LOVC)
+* oznaka ceste ali šifra naselja kjer je prišlo do nesreèe - c 5
+* tekst ceste ali naselja, kjer je prišlo do nesreèe - c 25
+* oznaka odseka ceste ali šifra ulice, kjer je prišlo do nesreèe - c 5
+* tekst odseka ali ulice, kjer je prišlo do nesreèe - c 25
+* toèna stacionaža ali hišna številka, kjer je prišlo do nesreèe - n 4
+* opis prizorišèa nesreèe - c 1 (PRKD)
+* glavni vzrok nesreèe - c 2 (PRVZ)
+* tip nesreèe -c 2 (PRTN)
+* vremenske okolišèine v èasu nesreèe -c 1 (PRVR)
+* stanje prometa v èasu nesreèe - c 1 (PRSP)
+* stanje vozišèa v èasu nesreèe - c 2 (PRPV)
+* stanje površine vozišèa v èasu nesreèe - c 2 (PRSV)
+
+Struktura baze oseb v PN (PNOSE):
+
+* številka zadeve, povezovalni parameter na bazo prometnih nesreè - n 9
+* kot kaj nastopa oseba v prometni nesreèi - c 1 (povzroèitelj ali udeleženec)
+* starost osebe - c 4 (LLMM)
+* spol - c 1 (1 - M, 2 - Ž)
+* obèina stalnega prebivališèa - c 4 (LOOB)
+* državljanstvo osebe - c 3 (LODZ)
+* poškodba osebe - c 1 (PRPO)
+* vrsta udeleženca v prometu - c 2 (PRVU)
+* ali je oseba uporabljala varnostni pas ali èelado (polje se interpretira v odvisnosti od vrste udeleženca) - c 1 (Da/Ne) 
+* vozniški staž osebe za kategorijo, ki jo potrebuje glede na vrsto udeleženca v prometu - c 4 (LLMM) 
+* vrednost alkotesta za osebo, èe je bil opravljen - c 4 (n.nn)
+* vrednost strokovnega pregleda za osebo, èe je bil odrejen in so rezultati že znani - c 4 (n.nn) 
+
+   ŠIFRANT PRPO     POŠKODBA OSEBE IN KLASIFIKACIJA NESREÈE
+B     BREZ POŠKODBE
+H     HUDA TELESNA POŠKODBA
+L     LAŽJA TELESNA POŠKODBA
+P     SLED POŠKODBE
+S     SMRT
+
+   ŠIFRANT LOOB     ŠIFRANT UPRAVNIH ENOT IN STARIH OBÈIN 
+5501  AJDOVŠÈINA
+5502  BREŽICE
+5503  CELJE
+5504  CERKNICA
+5505  ÈRNOMELJ
+5506  DOMŽALE
+5507  DRAVOGRAD
+5508  GORNJA RADGONA
+5509  GROSUPLJE
+5510  HRASTNIK
+5511  IDRIJA
+5512  ILIRSKA BISTRICA
+5513  IZOLA
+5514  JESENICE
+5515  KAMNIK
+5516  KOÈEVJE
+5517  KOPER
+5518  KRANJ
+5519  KRŠKO
+5520  LAŠKO
+5521  LENART
+5522  LENDAVA
+5523  LITIJA
+5524  LJUBLJANA BEŽIGRAD
+5525  LJUBLJANA CENTER
+5526  LJUBLJANA MOSTE POLJE
+5527  LJUBLJANA ŠIŠKA
+5528  LJUBLJANA VIÈ RUDNIK
+5529  LJUTOMER
+5530  LOGATEC
+5534  METLIKA
+5535  MOZIRJE
+5536  MURSKA SOBOTA
+5537  NOVA GORICA
+5538  NOVO MESTO
+5539  ORMOŽ
+5540  PIRAN
+5541  POSTOJNA
+5542  PTUJ
+5543  RADLJE OB DRAVI
+5544  RADOVLJICA
+5545  RAVNE NA KOROŠKEM
+5546  RIBNICA
+5547  SEVNICA
+5548  SEŽANA
+5549  SLOVENJ GRADEC
+5550  SLOVENSKA BISTRICA
+5551  SLOVENSKE KONJICE
+5552  ŠENTJUR PRI CELJU
+5553  ŠKOFJA LOKA
+5554  ŠMARJE PRI JELŠAH
+5555  TOLMIN
+5556  TRBOVLJE
+5557  TREBNJE
+5558  TRŽIÈ
+5559  VELENJE
+5560  VRHNIKA
+5561  ZAGORJE OB SAVI
+5562  ŽALEC
+5564  MARIBOR
+5565  PESNICA
+5568  RUŠE
+5598  MNZ
+5599  NEZNANA OBÈ
+
+   ŠIFRANT LOVC     KATEGORIJA CESTE, NASELJA 
+H     HITRA CESTA
+L     LOKALNA CESTA
+N     NASELJE Z ULIÈNIM SISTEMOM
+T     TURISTIÈNA CESTA
+V     NASELJE BREZ ULIÈNEGA SISTEMA
+0     AVTOCESTA
+1     GLAVNA CESTA I. REDA
+2     GLAVNA CESTA II. REDA
+3     REGIONALNA CESTA I. REDA
+4     REGIONALNA CESTA II. REDA
+5     REGIONALNA CESTA III. REDA
+
+   ŠIFRANT PRKD     OPIS KRAJA DOGODKA
+Ž     ŽELEZNIŠKI PREHOD
+A     AVTOBUSNA POSTAJA
+C     CESTA
+E     ŽELEZNIŠKO POSTAJALIŠÈE
+K     KOLESAR. ST. ALI PLOÈNIK
+M     KROŽNO KRIŽIŠÈE
+N     NARAVNO OKOLJE
+O     NARAVOVARSTVENO OBMOÈJE
+P     PARKIRNI PROSTOR
+R     KRIŽIŠÈE
+V     VLAK
+Z     PREHOD ZA PEŠCE
+
+   ŠIFRANT PRVZ     VZROK PROMETNE NESREÈE
+CE    NEPRAVILNOSTI NA CESTI
+HI    NEPRILAGOJENA HITROST
+NP    NEPRAVILNOSTI PEŠCA
+OS    OSTALO
+PD    NEUPOŠTEVANJE PRAVIL O PREDNOSTI
+PR    NEPRAVILNO PREHITEVANJE
+PV    PREMIKI Z VOZILOM
+SV    NEPRAVILNA STRAN / SMER VOŽNJE
+TO    NEPRAVILNOSTI NA TOVORU
+VO    NEPRAVILNOSTI NA VOZILU
+VR    NEUSTREZNA VARNOSTNA RAZDALJA
+
+   ŠIFRANT PRTN     TIP PROMETNE NESREÈE
+ÈT    ÈELNO TRÈENJE
+BT    BOÈNO TRÈENJE
+NT    NALETNO TRÈENJE
+OP    OPLAŽENJE
+OS    OSTALO
+PP    POVOŽENJE PEŠCA
+PR    PREVRNITEV VOZILA
+PZ    POVOŽENJE ŽIVALI
+TO    TRÈENJE V OBJEKT
+TV    TRÈENJE V STOJEÈE / PARKIRANO VOZILO
+
+   ŠIFRANT PRVR     VREMENSKE OKOLIŠÈINE
+D     DEŽEVNO
+J     JASNO
+M     MEGLA
+N     NEZNANO
+O     OBLAÈNO
+S     SNEG
+T     TOÈA
+V     VETER
+
+   ŠIFRANT PRSP     STANJE PROMETA V ÈASU PROMETNE NESREÈE
+E     NEZNANO
+G     GOST
+N     NORMALEN
+R     REDEK
+Z     ZASTOJI
+
+   ŠIFRANT PRPV     STANJE VOZIŠÈA V ÈASU PROMETNE NESREÈE
+BL    BLATNO
+MO    MOKRO
+OS    OSTALO
+PN    POLEDENELO - NEPOSIPANO
+PP    POLEDENELO - POSIPANO
+SL    SNEŽENO - PLUŽENO
+SN    SNEŽENO - NEPLUŽENO
+SP    SPOLZKO
+SU    SUHO
+
+   ŠIFRANT PRSV     VRSTA VOZIŠÈA  V ÈASU PROMETNE NESREÈE
+AH    HRAPAV  ASFALT / BETON
+AN    NERAVEN ASFALT / BETON
+AZ    ZGLAJEN ASFALT / BETON
+MA    MAKADAM
+OS    OSTALO
+
+   ŠIFRANT PRPO      POŠKODBA OSEBE IN KLASIFIKACIJA NESREÈE 
+B     BREZ POŠKODBE
+H     HUDA TELESNA POŠKODBA
+L     LAŽJA TELESNA POŠKODBA
+P     SLED POŠKODBE
+S     SMRT
+
+   ŠIFRANT PRVU    VRSTA UDELEŽENCA V PROMETU 
+AV    VOZNIK AVTOBUSA
+DS    VOZNIK DELOVNEGA STROJA
+KM    VOZNIK KOLESA Z MOTORJEM
+KO    KOLESAR
+KR    X-KRŠITELJ - JRM
+KV    VOZNIK KOMBINIRANEGA VOZILA
+MK    VOZNIK MOTORNEGA KOLESA
+MO    VOZNIK MOPEDA
+OA    VOZNIK OSEBNEGA AVTOMOBILA
+OD    ODGOVORNA OSEBA
+OS    OSTALO
+PE    PEŠEC
+PO    PRAVNA OSEBA
+PT    POTNIK
+SM    SKRBNIK MLADOLETNIKA
+SV    VOZNIK SPECIALNEGA VOZILA
+TR    VOZNIK TRAKTORJA
+TV    VOZNIK TOVORNEGA VOZILA
