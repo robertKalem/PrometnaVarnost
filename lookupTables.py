@@ -72,7 +72,7 @@ def get_upravna_enota(sifrant):
          5568: "RUŠE",
          5580: "IZDANO V DRUGI DRŽAVI",
          5598: "MNZ",
-         5599: "NEZNANA OBČ"
+         5599: "NEZNANA OBČINA"
     }[sifrant]
 
 def get_kategorija_ceste(sifrant):
@@ -102,7 +102,7 @@ def get_klasifikacija_nesrece(sifrant):
 
 def get_opis_kraja_nesrece(sifrant):
 	return {
-    	"�":"ŽELEZNIŠKI PREHOD",
+    	"Ž":"ŽELEZNIŠKI PREHOD",
     	"A":"AVTOBUSNA POSTAJA",
     	"C":"CESTA",
     	"E":"ŽELEZNIŠKO POSTAJALIŠČE",
@@ -134,7 +134,7 @@ def get_vzrok_nesrece(sifrant):
 
 def get_tip_nesrece(sifrant):
 	return{
-	    "T":"ČELNO TRČENJE",
+	    "ČT":"ČELNO TRČENJE",
     	"BT":"BOČNO TRČENJE",
     	"NT":"NALETNO TRČENJE",
     	"OP":"OPLAŽENJE",
@@ -143,7 +143,7 @@ def get_tip_nesrece(sifrant):
     	"PR":"PREVRNITEV VOZILA",
     	"PZ":"POVOŽENJE ŽIVALI",
 		"TO":"TRČENJE V OBJEKT",
-    	"TV":"TRČENJE V STOJEČE / PARKIRANO VOZIL"
+    	"TV":"TRČENJE V STOJEČE / PARKIRANO VOZILO"
 	}[sifrant]
 
 def get_vremenske_okoliscine(sifrant):
@@ -381,7 +381,7 @@ def get_drzavljanstvo_osebe(sifrant):
 		455: "SAINT (SVETA) HELENA",
 		498: "MOLDAVIJA",
 		501: "KANADA",
-		502: "ZDRU�ENE DR�AVE",
+		502: "ZDRUŽENE DRŽAVE",
 		503: "ANTIGVA IN BARBUDA",
 		504: "BELIZE",
 		505: "ANGVILA",
@@ -479,7 +479,7 @@ def get_vrsta_udelezenca(sifrant):
 		"KO": "KOLESAR",
 		"KR": "X-KRŠITELJ - JRM",
 		"KV": "VOZNIK KOMBINIRANEGA VOZILA",
-		"LK": "VOZNIK LAHKEGA �TIRIKOLESA",
+		"LK": "VOZNIK LAHKEGA ŠTIRIKOLESA",
 		"MK": "VOZNIK MOTORNEGA KOLESA",
 		"MO": "VOZNIK MOPEDA",
 		"OA": "VOZNIK OSEBNEGA AVTOMOBILA",

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="d3/d3.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>MT: D3 demo</title>
+</head>
+<body>
+	<script>
+
+		var width = window.innerWidth;
+		var height = window.innerHeight;
+		
+		var data = [4, 8, 11, 13, 17, 25, 32, 38, 42, 55, 62, 70];
+		var rectArray = [];
+		
+		var widthScale = d3.scaleLinear()
+						.domain([0, 120])    // originalni razpon vrednosti
+						.range([0, width]);  // preslikani razpon vrednosti
+		
+		var colorScale = d3.scaleLinear()
+							.domain([0, 120])
+							.range(["orange", "purple"]);
+		
+		var canvas = d3.select("body")
+					.append("svg")
+					.attr("width", width)
+					.attr("height", height);
+					
+		var bars = canvas.selectAll("g")
+					.data(data)
+					
+					.enter()
+						.append("g");
+
+
+		bars.append("rect")
+			.attr("width", function(d) { return widthScale(d); } )
+			.attr("height", 27)
+			.attr("y", function(d, i) { return i * 28; } )
+			.attr("fill", function(d) { return colorScale(d); } )
+			.on("click", klik);
+			//.on("mouseup", spustKlika);
+
+		bars.selectAll("rect")
+			.on("mouseover", handleMouseOver)
+			.on("mouseout", handleMouseOut);
+			
+		
+		function klik() {
+		    var m = d3.mouse(this);
+
+		    bars.selectAll("rect").transition()
+			.duration(1300)       // trajanje tranzicije v milisekundah
+			.ease(d3.easeBounce)  // prehod v gibanju (se odbije)
+			.attr("width", 0)
+			.style("opacity", 0.0);
+
+			d3.select(this).transition()
+			//.delay(800)
+			.duration(1000) 
+			.ease(d3.easeBounce)
+			.attr("width", width-15 )
+			.style("opacity", 1.0);
+
+			d3.select(this).moveToFront();
+
+			d3.select(this).transition()
+			.delay(900)
+			.duration(600)
+			.ease(d3.easeSin)
+			.attr("height", 250 );
+
+			//.transition()
+		}
+
+		d3.selection.prototype.moveToFront = function() {
+			return this.each(function(){
+			this.parentNode.appendChild(this);
+			});
+		};
+
+		function handleMouseOver(d, i) {  // Add interactivity
+            // Use D3 to select element, change color and size
+            d3.select(this)
+            .attr("opacity", 0.50);
+          }
+
+         function handleMouseOut(d, i) {
+            // Use D3 to select element, change color back to normal
+            d3.select(this)
+            .attr("opacity", 1);
+          }
+
+
+	</script>
+</body>
+</html>

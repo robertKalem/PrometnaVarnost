@@ -1,7 +1,7 @@
 '''
 ==============================
 Title: createElasticIndex
-Author: Robert Kalem
+Authors: Robert Kalem, Antonio Katarov
 Date: 15 Nov 2018
 ==============================
 
@@ -21,9 +21,13 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk, streaming_bulk
 import os
 from lookupTables import *
+from sortTextFile import sort_data
 es=Elasticsearch([{'host':'localhost','port':'9200'}])
 
 es
+
+
+sort_data("./Podatki")
 
 if (len(sys.argv)>1):
     indexName = sys.argv[1].lower()
@@ -46,6 +50,7 @@ def import_data(myPath, index_name, doc_type_name="en"):
 
     i=1
     lineNum=0
+    stBranj = 0
     subfolders = [dI for dI in os.listdir(myPath) if os.path.isdir(os.path.join(myPath,dI))]
 
     for folder in subfolders:
@@ -56,16 +61,18 @@ def import_data(myPath, index_name, doc_type_name="en"):
             # for loop cez file s podatki (2011-2017) // za ostale bo drugacno iskanje
             # v letu 2014 je prometna nesreca z 92 udelezenci, kar povzroci error v ELasticsearchu
             # zato to leto zaenkrat prefiltriram
+            
+            stPrometnihNesrec = 0
 
-            if (year >= '2005' and year <= '2010'):
+            if (year >= '2005' and year <= '2010'): #2010
                 dataFiles = [fI for fI in os.listdir(myPath+'/'+folder) if os.path.isfile(os.path.join(myPath+'/'+folder, fI))]
                 for each in dataFiles:
-                    if each[4:11] == 'DOGODKI':
-                        
-                        file = open( myPath+'/'+folder+'/'+each, 'r', encoding='utf-8', errors='ignore')
+                    if each[4:11] == 'DOGODKI' and (each.endswith('_sorted.txt')):
+                        stBranj += 1
+                        file = open( myPath+'/'+folder+'/'+each, 'r', errors='ignore')
                         dogodkiLines = file.readlines()
                         file.close()
-                        file = open( myPath+'/'+folder+'/'+'PNL-OSEBE-'+year+'.TXT', 'r', encoding='utf-8', errors='ignore')
+                        file = open( myPath+'/'+folder+'/'+'PNL-OSEBE-'+year+'.TXT', 'r', errors='ignore')
                         osebeLines = file.readlines()
                         file.close()
                         lineNum = 0
@@ -75,7 +82,7 @@ def import_data(myPath, index_name, doc_type_name="en"):
                             
                             print("Parsing line: \n", line)
 
-                            if(lineNum!=0):     # prvo vrstico vedno preskocimo
+                            if( not line.startswith('FIO')):     # prvo vrstico vedno preskocimo
                                 dataList = line.split('$')
 
                                 sifrantUpEnota = dataList[2]
@@ -114,17 +121,19 @@ def import_data(myPath, index_name, doc_type_name="en"):
             
                                 indexDodajanegaPovzrocitelja = 1        # za locevanje povzrociteljev PN
                                 indexDodajanegaUdelezenca = 1           # za locevanje udelezencev PN
+                                stPrometnihNesrec += 1
 
-                                udelezenci = {}                         # slovar udelezencev
-                                povzrocitelji = {}                      # slovar povzrociteljev
+                                udelezenci = []                         # slovar udelezencev
+                                povzrocitelji = []                      # slovar povzrociteljev
 
                                 while osebeLines[osebeLineIndex].split("$")[0] == FIOStevilkaZadeve:  
 
                                     osebeDataList = osebeLines[osebeLineIndex].split("$")
 
-
-                                    if (osebeDataList[1] == "POVZROITELJ"):
-                                        povzrocitelji['Povzrocitelj'+str(indexDodajanegaPovzrocitelja)] =  { 
+                                    print(osebeDataList)
+                                    
+                                    if (osebeDataList[1] == "POVZROČITELJ"):
+                                        povzrocitelji.append({
                                             "Starost" : int(osebeDataList[2]),
                                             "Spol" : osebeDataList[3],
                                             "Drzavljanstvo" : osebeDataList[4],
@@ -135,11 +144,12 @@ def import_data(myPath, index_name, doc_type_name="en"):
                                             "VozniskiStazVMesecih" : int(osebeDataList[8].split("-")[1]),
                                             "VrednostAlkotesta" : float(osebeDataList[9].replace(',', '.')),
                                             "VrednostStrokovnegaPregleda" : float(osebeDataList[10].replace(',', '.'))
-                                        }
+
+                                        })
                                         indexDodajanegaPovzrocitelja += 1
 
-                                    elif (osebeDataList[1] == "UDELEENEC"):
-                                        udelezenci['Udelezenec'+str(indexDodajanegaUdelezenca)] =  {
+                                    elif (osebeDataList[1] == "UDELEŽENEC"):
+                                        udelezenci.append({
                                             "Starost" : int(osebeDataList[2]),
                                             "Spol" : osebeDataList[3],
                                             "Drzavljanstvo" : osebeDataList[4],
@@ -147,10 +157,10 @@ def import_data(myPath, index_name, doc_type_name="en"):
                                             "VrstaUdelezenca" : osebeDataList[6],
                                             "UporabaVarnostnegaPasu" : osebeDataList[7],
                                             "VozniskiStazVLetih" : int(osebeDataList[8].split("-")[0]),
-                                            "VozniskiStazVMesecih" : int(osebeDataList[8].split("-")[1]),
+                                            #"VozniskiStazVMesecih" : int(osebeDataList[8].split("-")[1]),
                                             "VrednostAlkotesta" : float(osebeDataList[9].replace(',', '.')),
-                                            "VrednostStrokovnegaPregleda" : float(osebeDataList[10].replace(',', '.'))
-                                        }
+                                            #"VrednostStrokovnegaPregleda" : float(osebeDataList[10].replace(',', '.'))
+                                        })
                                         indexDodajanegaUdelezenca += 1
 
                                     if (osebeLineIndex+1 != len(osebeLines) ):
@@ -168,37 +178,27 @@ def import_data(myPath, index_name, doc_type_name="en"):
                                     "DatumPN": DatumPN,
                                     "UraPN": int(UraPN),
                                     "VNaselju": VNaselju,
-                                    "Lokacija": Lokacija,
+                                    #"Lokacija": Lokacija,
                                     "VrstaCesteNaselja": VrstaCesteNaselja,
-                                    "SifraCesteNaselja": SifraCesteNaselja,
+                                    #"SifraCesteNaselja": SifraCesteNaselja,
                                     "TekstCesteNaselja": TekstCesteNaselja,
-                                    "SifraOdsekaUlice": SifraOdsekaUlice, #this was integer
-                                    "TekstOdsekaUlice": TekstOdsekaUlice,
-                                    "StacionazaDogodka": int(StacionazaDogodka),
+                                    #"SifraOdsekaUlice": SifraOdsekaUlice, #this was integer
+                                    #"TekstOdsekaUlice": TekstOdsekaUlice,
+                                    #"StacionazaDogodka": int(StacionazaDogodka),
                                     "VzrokNesrece": VzrokNesrece,
                                     "TipNesrece": TipNesrece,
                                     "VremenskeOkoliscine": VremenskeOkoliscine,
                                     "StanjePrometa": StanjePrometa,
-                                    "StanjeVozisca": StanjeVozisca,
-                                    "VrstaVozisca": VrstaVozisca,
-                                    "GeoKoordinataX": GeoKoordinataX,   #formatting?
-                                    "GeoKoordinataY": GeoKoordinataY,   #formatting?
+                                    #"StanjeVozisca": StanjeVozisca,
+                                    #"VrstaVozisca": VrstaVozisca,
+                                    #"GeoKoordinataX": GeoKoordinataX,   #formatting?
+                                    #"GeoKoordinataY": GeoKoordinataY,   #formatting?
                                     "SteviloUdelezencev": indexDodajanegaPovzrocitelja+indexDodajanegaUdelezenca-2,
                                     "Povzrocitelj" : povzrocitelji,     # slovar, ki vsebuje slovarje
                                     "Udelezenec" : udelezenci           # slovar, ki vsebuje slovarje
                                     }
                                 i+=1
                             lineNum+=1
-
-
-
-
-
-
-
-
-
-
 
 ##################################################################################################################################################################
 ##################################################################################################################################################################
@@ -209,15 +209,15 @@ def import_data(myPath, index_name, doc_type_name="en"):
 ##################################################################################################################################################################
 
             
-            if (year >= '2010' and year != '2014'):
+            if (year >= '2011'):
                 dataFiles = [fI for fI in os.listdir(myPath+'/'+folder) if os.path.isfile(os.path.join(myPath+'/'+folder, fI))]
                 for each in dataFiles:
                     if each[12:] == 'dogodki.txt':
                         
-                        file = open( myPath+'/'+folder+'/'+each, 'r', encoding='utf-8', errors='ignore')
+                        file = open( myPath+'/'+folder+'/'+each, 'r', encoding='cp1250', errors='ignore')
                         dogodkiLines = file.readlines()
                         file.close()
-                        file = open( myPath+'/'+folder+'/'+each[:12]+'osebe.txt', 'r', encoding='utf-8', errors='ignore')
+                        file = open( myPath+'/'+folder+'/'+each[:12]+'osebe.txt', 'r', encoding='cp1250', errors='ignore')
                         osebeLines = file.readlines()
                         file.close()
                         lineNum = 0
@@ -255,44 +255,43 @@ def import_data(myPath, index_name, doc_type_name="en"):
             
                                 indexDodajanegaPovzrocitelja = 1        # za locevanje povzrociteljev PN
                                 indexDodajanegaUdelezenca = 1           # za locevanje udelezencev PN
-
-                                udelezenci = {}                         # slovar udelezencev
-                                povzrocitelji = {}                      # slovar povzrociteljev
+                                udelezenci = []                         # slovar udelezencev
+                                povzrocitelji = []                      # slovar povzrociteljev
 
                                 while osebeLines[osebeLineIndex].split("$")[0] == FIOStevilkaZadeve:  
 
                                     osebeDataList = osebeLines[osebeLineIndex].split("$")
 
-                                    if (osebeDataList[1] == "POVZROITELJ"):
-                                        povzrocitelji['Povzrocitelj'+str(indexDodajanegaPovzrocitelja)] =  { 
+                                    if (osebeDataList[1] == "POVZROČITELJ"):
+                                        povzrocitelji.append({
                                             "Starost" : int(osebeDataList[2]),
                                             "Spol" : osebeDataList[3],
-                                            "UEStalnegaPrebivalisca" : osebeDataList[4],
+                                            #"UEStalnegaPrebivalisca" : osebeDataList[4],
                                             "Drzavljanstvo" : osebeDataList[5],
                                             "PoskodbaUdelezenca" : osebeDataList[6],
                                             "VrstaUdelezenca" : osebeDataList[7],
                                             "UporabaVarnostnegaPasu" : osebeDataList[8],
                                             "VozniskiStazVLetih" : int(osebeDataList[9]),
-                                            "VozniskiStazVMesecih" : int(osebeDataList[10]),
+                                            #"VozniskiStazVMesecih" : int(osebeDataList[10]),
                                             "VrednostAlkotesta" : float(osebeDataList[11].replace(',', '.')),
-                                            "VrednostStrokovnegaPregleda" : float(osebeDataList[12].replace(',', '.'))
-                                        }
+                                            #"VrednostStrokovnegaPregleda" : float(osebeDataList[12].replace(',', '.'))
+                                        })
                                         indexDodajanegaPovzrocitelja += 1
 
-                                    elif (osebeDataList[1] == "UDELEENEC"):
-                                        udelezenci['Udelezenec'+str(indexDodajanegaUdelezenca)] =  {
+                                    elif (osebeDataList[1] == "UDELEŽENEC"):
+                                        udelezenci.append({
                                             "Starost" : int(osebeDataList[2]),
                                             "Spol" : osebeDataList[3],
-                                            "UEStalnegaPrebivalisca" : osebeDataList[4],
+                                            #"UEStalnegaPrebivalisca" : osebeDataList[4],
                                             "Drzavljanstvo" : osebeDataList[5],
                                             "PoskodbaUdelezenca" : osebeDataList[6],
                                             "VrstaUdelezenca" : osebeDataList[7],
                                             "UporabaVarnostnegaPasu" : osebeDataList[8],
                                             "VozniskiStazVLetih" : int(osebeDataList[9]),
-                                            "VozniskiStazVMesecih" : int(osebeDataList[10]),
+                                            #"VozniskiStazVMesecih" : int(osebeDataList[10]),
                                             "VrednostAlkotesta" : float(osebeDataList[11].replace(',', '.')),
-                                            "VrednostStrokovnegaPregleda" : float(osebeDataList[12].replace(',', '.'))
-                                        }
+                                            #"VrednostStrokovnegaPregleda" : float(osebeDataList[12].replace(',', '.'))
+                                        })
                                         indexDodajanegaUdelezenca += 1
 
                                     if (osebeLineIndex+1 != len(osebeLines) ):
@@ -310,29 +309,28 @@ def import_data(myPath, index_name, doc_type_name="en"):
                                     "DatumPN": DatumPN,
                                     "UraPN": int(UraPN),
                                     "VNaselju": VNaselju,
-                                    "Lokacija": Lokacija,
+                                    #"Lokacija": Lokacija,
                                     "VrstaCesteNaselja": VrstaCesteNaselja,
-                                    "SifraCesteNaselja": SifraCesteNaselja,
+                                    #"SifraCesteNaselja": SifraCesteNaselja,
                                     "TekstCesteNaselja": TekstCesteNaselja,
-                                    "SifraOdsekaUlice": int(SifraOdsekaUlice),
-                                    "TekstOdsekaUlice": TekstOdsekaUlice,
-                                    "StacionazaDogodka": int(StacionazaDogodka),
+                                    #"SifraOdsekaUlice": int(SifraOdsekaUlice),
+                                    #"TekstOdsekaUlice": TekstOdsekaUlice,
+                                    #"StacionazaDogodka": int(StacionazaDogodka),
                                     "OpisKraja": OpisKraja,
                                     "VzrokNesrece": VzrokNesrece,
                                     "TipNesrece": TipNesrece,
                                     "VremenskeOkoliscine": VremenskeOkoliscine,
                                     "StanjePrometa": StanjePrometa,
-                                    "StanjeVozisca": StanjeVozisca,
-                                    "VrstaVozisca": VrstaVozisca,
-                                    "GeoKoordinataX": GeoKoordinataX,   #formatting?
-                                    "GeoKoordinataY": GeoKoordinataY,   #formatting?
+                                    #"StanjeVozisca": StanjeVozisca,
+                                    #"VrstaVozisca": VrstaVozisca,
+                                    #"GeoKoordinataX": GeoKoordinataX,   #formatting?
+                                    #"GeoKoordinataY": GeoKoordinataY,   #formatting?
                                     "SteviloUdelezencev": indexDodajanegaPovzrocitelja+indexDodajanegaUdelezenca-2,
                                     "Povzrocitelj" : povzrocitelji,     # slovar, ki vsebuje slovarje
                                     "Udelezenec" : udelezenci           # slovar, ki vsebuje slovarje
                                     }
                                 i+=1
                             lineNum+=1
-
                     
 output, _ = bulk(es, import_data(pathToData, indexName))
 print('Indexed %d elements' % output)
@@ -353,73 +351,6 @@ for line in dogodkiLines:
 
      
 
-
-        FIOStevilkaZadeve = dataList[0]
-        KlasifikacijaNesrece = get_klasifikacija_nesrece(dataList[1])
-        UpravnaEnota = get_upravna_enota(int(sifrantUpEnota))
-        DatumPN = date_to_date(dataList[3])
-        UraPN = dataList[4]
-        VNaselju = get_v_naselju(dataList[5])
-        Lokacija = get_opis_kraja_nesrece(dataList[12])
-        VrstaCesteNaselja = get_kategorija_ceste(dataList[6])
-        SifraCesteNaselja = dataList[7]
-        TekstCesteNaselja = dataList[8]
-        SifraOdsekaUlice = dataList[9]
-        TekstOdsekaUlice = dataList[10]
-        StacionazaDogodka = dataList[11]
-        VzrokNesrece = get_vzrok_nesrece(dataList[13])
-        TipNesrece = get_tip_nesrece(dataList[14])
-        VremenskeOkoliscine = get_vremenske_okoliscine(dataList[15])
-        StanjePrometa = get_stanje_prometa(dataList[16])
-        StanjeVozisca = get_stanje_vozisca(dataList[17])
-        VrstaVozisca = get_stanje_povrsine_vozisca(dataList[18])
-        GeoKoordinataX = int(dataList[19])
-        GeoKoordinataY = int(dataList[20])
-
-        print(FIOStevilkaZadeve+"|"+KlasifikacijaNesrece+"|"+UpravnaEnota+"|"+DatumPN+"|"+UraPN+"|"+VNaselju+"|"+Lokacija+"|"+VrstaCesteNaselja+"|"+SifraCesteNaselja+"|"+TekstCesteNaselja+"|"+SifraOdsekaUlice+"|"+TekstOdsekaUlice+"|"+StacionazaDogodka+"|"+VzrokNesrece+"|"+TipNesrece+"|"+VremenskeOkoliscine+"|"+StanjePrometa+"|"+StanjeVozisca+"|"+VrstaVozisca)
-    
-    preskokPrve+=1
-print("stevilo izpisov= ", preskokPrve)
-
-
-
-Data for 2005 - 2010
-
-
-FIOStevilkaZadeve = dataList[0]
-KlasifikacijaNesrece = dataList[1]
-UpravnaEnota = dataList[2]
-DatumPN = date_to_date(dataList[3])
-UraPN = dataList[4]
-VNaselju = dataList[5]
-Lokacija = dataList[12]              ####-------- 
-VrstaCesteNaselja = dataList[6]
-SifraCesteNaselja = dataList[7]
-TekstCesteNaselja = dataList[8]
-SifraOdsekaUlice = dataList[9]
-TekstOdsekaUlice = dataList[10]
-StacionazaDogodka = dataList[11]
-VzrokNesrece = dataList[13]
-TipNesrece = dataList[14]
-VremenskeOkoliscine = dataList[15]
-StanjePrometa = dataList[16]
-StanjeVozisca = dataList[17]
-VrstaVozisca = dataList[18]
-GeoKoordinataX = int(dataList[19])
-GeoKoordinataY = int(dataList[20])
-
-
-"Starost" : int(osebeDataList[2]),
-"Spol" : osebeDataList[3],
-#"UEStalnegaPrebivalisca" : osebeDataList[4],
-"Drzavljanstvo" : osebeDataList[4],
-"PoskodbaUdelezenca" : osebeDataList[5],
-"VrstaUdelezenca" : osebeDataList[6],
-"UporabaVarnostnegaPasu" : osebeDataList[7],
-"VozniskiStazVLetih" : int(osebeDataList[8].split("-")[0]),
-"VozniskiStazVMesecih" : int(osebeDataList[8].split("-")[1]),
-"VrednostAlkotesta" : float(osebeDataList[9].replace(',', '.')),
-"VrednostStrokovnegaPregleda" : float(osebeDataList[10].replace(',', '.'))
 
 
 '''
