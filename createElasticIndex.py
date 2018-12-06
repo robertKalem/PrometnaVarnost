@@ -64,6 +64,194 @@ def import_data(myPath, index_name, doc_type_name="en"):
             
             stPrometnihNesrec = 0
 
+##################################################################################################################################################################
+##################################################################################################################################################################
+##################################################################################################################################################################
+#####################################   1995 - 2004 ##############################################################################################################
+##################################################################################################################################################################
+##################################################################################################################################################################
+##################################################################################################################################################################
+
+
+
+
+            if (year >= '5995' and year <= '6004'): 
+                dataFiles = [fI for fI in os.listdir(myPath+'/'+folder) if os.path.isfile(os.path.join(myPath+'/'+folder, fI))]
+                for each in dataFiles:
+                    if each[2:4] == year[2:4] :
+                        file = open( myPath+'/'+folder+'/'+each, 'r', encoding='cp1250', errors='ignore')
+                        dogodkiLines = file.readlines()
+                        file.close()
+                        file = open( myPath+'/'+folder+'/'+'pnose'+year[2:4]+'.txt', 'r', encoding='cp1250', errors='ignore')
+                        osebeLines = file.readlines()
+                        file.close()
+                        lineNum = 0
+                        osebeLineIndex = 0      
+                        dataList = [""] * 19
+                        for line in dogodkiLines:
+                            
+                            print("Parsing line: \n", line)
+
+                            if( not line.startswith('FIO')):     # prvo vrstico vedno preskocimo
+                                
+                                fieldCharCount = [9, 1, 4, 10, 5, 1, 1, 5, 25, 5, 25, 4, 1, 2, 2, 1, 1, 2, 2]
+                                currentCharIndex = 0
+                                dataListIndex = 0
+                                for x in fieldCharCount:
+                                    #iz line poberi pravilen del
+                                    if(currentCharIndex >= len(line)):
+                                        dataList[dataListIndex] = ""
+                                    else:
+                                        dataList[dataListIndex] = line[currentCharIndex:x+currentCharIndex]
+                                        print(dataList[dataListIndex])
+                                        currentCharIndex = currentCharIndex + x;
+                                    dataListIndex += 1
+
+
+                                
+
+                                sifrantUpEnota = dataList[2]
+                                if sifrantUpEnota=="":
+                                    sifrantUpEnota="5599"
+
+                                sifrantLokacija = dataList[12]
+                                if sifrantLokacija=="":
+                                    sifrantLokacija="C"
+
+                                sifrantKategorijaC = dataList[6]
+                                if sifrantKategorijaC=="":
+                                    sifrantKategorijaC="C"
+
+                                FIOStevilkaZadeve = dataList[0]
+                                KlasifikacijaNesrece = get_klasifikacija_nesrece(dataList[1])
+                                UpravnaEnota = get_upravna_enota(int(sifrantUpEnota))
+                                DatumPN = date_to_date(dataList[3])
+                                UraPN = dataList[4]
+                                VNaselju = dataList[5]
+                                Lokacija = get_opis_kraja_nesrece(sifrantLokacija)
+                                VrstaCesteNaselja = get_kategorija_ceste(dataList[6])
+                                SifraCesteNaselja = dataList[7]
+                                TekstCesteNaselja = dataList[8]
+                                SifraOdsekaUlice = dataList[9]
+                                TekstOdsekaUlice = dataList[10]
+                                StacionazaDogodka = dataList[11]
+                                VzrokNesrece = get_vzrok_nesrece(dataList[13])
+                                TipNesrece = get_tip_nesrece(dataList[14])
+                                VremenskeOkoliscine = get_vremenske_okoliscine(dataList[15])
+                                StanjePrometa = get_stanje_prometa(dataList[16])
+                                StanjeVozisca = get_stanje_vozisca(dataList[18])
+                                VrstaVozisca = get_stanje_povrsine_vozisca(dataList[17])
+            
+                                indexDodajanegaPovzrocitelja = 1        # za locevanje povzrociteljev PN
+                                indexDodajanegaUdelezenca = 1           # za locevanje udelezencev PN
+                                stPrometnihNesrec += 1
+
+                                udelezenci = []                         # slovar udelezencev
+                                povzrocitelji = []                      # slovar povzrociteljev
+
+
+                                fieldCharCountpnOSE = [9, 1, 4, 1, 4, 3, 1, 2, 1, 4, 4, 4]
+                                currentCharIndex = 0
+                                dataListIndex = 0
+
+
+                                while osebeLines[osebeLineIndex].split("$")[0] == FIOStevilkaZadeve:  
+
+                                    line = osebeLines[osebeLineIndex]
+
+                                    for x in fieldCharCount:
+                                        #iz line poberi pravilen del
+                                        if(currentCharIndex >= len(line)):
+                                            osebeDataList[dataListIndex] = ""
+                                        else:
+                                            osebeDataList[dataListIndex] = line[currentCharIndex:x]
+                                            currentCharIndex = currentCharIndex + x;
+                                        dataListIndex += 1
+
+
+
+
+                                    print(osebeDataList)
+                                    
+                                    if (osebeDataList[1] == "POVZROČITELJ"):
+                                        povzrocitelji.append({
+                                            "Starost" : int(osebeDataList[2]),
+                                            "Spol" : osebeDataList[3],
+                                            "Drzavljanstvo" : osebeDataList[4],
+                                            "PoskodbaUdelezenca" : osebeDataList[5],
+                                            "VrstaUdelezenca" : osebeDataList[6],
+                                            "UporabaVarnostnegaPasu" : osebeDataList[7],
+                                            "VozniskiStazVLetih" : int(osebeDataList[8].split("-")[0]),
+                                            "VozniskiStazVMesecih" : int(osebeDataList[8].split("-")[1]),
+                                            "VrednostAlkotesta" : float(osebeDataList[9].replace(',', '.')),
+                                            "VrednostStrokovnegaPregleda" : float(osebeDataList[10].replace(',', '.'))
+
+                                        })
+                                        indexDodajanegaPovzrocitelja += 1
+
+                                    elif (osebeDataList[1] == "UDELEŽENEC"):
+                                        udelezenci.append({
+                                            "Starost" : int(osebeDataList[2]),
+                                            "Spol" : osebeDataList[3],
+                                            "Drzavljanstvo" : osebeDataList[4],
+                                            "PoskodbaUdelezenca" : osebeDataList[5],
+                                            "VrstaUdelezenca" : osebeDataList[6],
+                                            "UporabaVarnostnegaPasu" : osebeDataList[7],
+                                            "VozniskiStazVLetih" : int(osebeDataList[8].split("-")[0]),
+                                            #"VozniskiStazVMesecih" : int(osebeDataList[8].split("-")[1]),
+                                            "VrednostAlkotesta" : float(osebeDataList[9].replace(',', '.')),
+                                            #"VrednostStrokovnegaPregleda" : float(osebeDataList[10].replace(',', '.'))
+                                        })
+                                        indexDodajanegaUdelezenca += 1
+
+                                    if (osebeLineIndex+1 != len(osebeLines) ):
+                                        osebeLineIndex+=1
+                                    else:
+                                        break;
+
+                                yield {
+                                    "_index": index_name,
+                                    "_type": "dogodek",
+                                    "Leto":  int(year),
+                                    "StevilkaZadeve": int(FIOStevilkaZadeve),
+                                    "KlasifikacijaNesrece": KlasifikacijaNesrece,
+                                    "UpravnaEnota": UpravnaEnota,
+                                    "DatumPN": DatumPN,
+                                    "UraPN": int(UraPN[0:2]),
+                                    "VNaselju": VNaselju,
+                                    #"Lokacija": Lokacija,
+                                    "VrstaCesteNaselja": VrstaCesteNaselja,
+                                    #"SifraCesteNaselja": SifraCesteNaselja,
+                                    "TekstCesteNaselja": TekstCesteNaselja,
+                                    #"SifraOdsekaUlice": SifraOdsekaUlice, #this was integer
+                                    #"TekstOdsekaUlice": TekstOdsekaUlice,
+                                    #"StacionazaDogodka": int(StacionazaDogodka),
+                                    "VzrokNesrece": VzrokNesrece,
+                                    "TipNesrece": TipNesrece,
+                                    "VremenskeOkoliscine": VremenskeOkoliscine,
+                                    "StanjePrometa": StanjePrometa,
+                                    #"StanjeVozisca": StanjeVozisca,
+                                    #"VrstaVozisca": VrstaVozisca,
+                                    #"GeoKoordinataX": GeoKoordinataX,   #formatting?
+                                    #"GeoKoordinataY": GeoKoordinataY,   #formatting?
+                                    "SteviloUdelezencev": indexDodajanegaPovzrocitelja+indexDodajanegaUdelezenca-2,
+                                    "Povzrocitelj" : povzrocitelji,     # slovar, ki vsebuje slovarje
+                                    "Udelezenec" : udelezenci           # slovar, ki vsebuje slovarje
+                                    }
+                                i+=1
+                            lineNum+=1
+
+##################################################################################################################################################################
+##################################################################################################################################################################
+##################################################################################################################################################################
+#####################################   2005 - 2010 ##############################################################################################################
+##################################################################################################################################################################
+##################################################################################################################################################################
+##################################################################################################################################################################
+                        
+                        
+
+
             if (year >= '2005' and year <= '2010'): #2010
                 dataFiles = [fI for fI in os.listdir(myPath+'/'+folder) if os.path.isfile(os.path.join(myPath+'/'+folder, fI))]
                 for each in dataFiles:

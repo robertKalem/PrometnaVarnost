@@ -35,6 +35,10 @@ def get_upravna_enota(sifrant):
          5522: "LENDAVA",
          5523: "LITIJA",
          5524: "LJUBLJANA",
+         5525: "LJUBLJANA",
+		 5526: "LJUBLJANA",
+		 5527: "LJUBLJANA",
+		 5528: "LJUBLJANA",
          5529: "LJUTOMER",
          5530: "LOGATEC",
          5534: "METLIKA",
@@ -88,16 +92,22 @@ def get_kategorija_ceste(sifrant):
         "2":"GLAVNA CESTA II. REDA",
         "3":"REGIONALNA CESTA I. REDA",
         "4":"REGIONALNA CESTA II. REDA",
-        "5":"REGIONALNA CESTA III. REDA"
+        "5":"REGIONALNA CESTA III. REDA",
+        "M":"NI PODATKA",
+        "R":"ZAČASNA REŠITEV",
+        "A":"ZAČASNA REŠITEV",
+        "P":"ZAČASNA REŠITEV",
     }[sifrant]
 
 def get_klasifikacija_nesrece(sifrant):
 	return {
+		"":"BREZ POŠKODBE",
 	    "B":"BREZ POŠKODBE",
-	    "H":"HUDA TELESNA POŠKODBA",
-	    "L":"LAŽJA TELESNA POŠKODBA",
-	    "S":"SMRT",
-	    "U":"BREZ POŠKODBE-UZ"
+	    "H":"S HUDO TELESNO POŠKODBO",
+	    "L":"Z LAŽJO TELESNO POŠKODBO",
+	    "S":"S SMRTNIM IZIDOM",
+	    "U":"BREZ POŠKODBE-UZ",
+	    "P":"SLED POŠKODBE"
    	}[sifrant]
 
 def get_opis_kraja_nesrece(sifrant):
@@ -134,6 +144,7 @@ def get_vzrok_nesrece(sifrant):
 
 def get_tip_nesrece(sifrant):
 	return{
+		"¬T":"ZAČASNA REŠITEV",
 	    "ČT":"ČELNO TRČENJE",
     	"BT":"BOČNO TRČENJE",
     	"NT":"NALETNO TRČENJE",
