@@ -81,6 +81,7 @@ def get_upravna_enota(sifrant):
 
 def get_kategorija_ceste(sifrant):
     return {
+    	" ": "NI PODATKA",
     	"": "NI PODATKA",
         "H":"HITRA CESTA",
         "L":"LOKALNA CESTA",
@@ -94,9 +95,9 @@ def get_kategorija_ceste(sifrant):
         "4":"REGIONALNA CESTA II. REDA",
         "5":"REGIONALNA CESTA III. REDA",
         "M":"NI PODATKA",
-        "R":"ZAČASNA REŠITEV",
-        "A":"ZAČASNA REŠITEV",
-        "P":"ZAČASNA REŠITEV",
+        "R":"NI PODATKA",
+        "A":"NI PODATKA",
+        "P":"NI PODATKA",
     }[sifrant]
 
 def get_klasifikacija_nesrece(sifrant):
@@ -106,7 +107,7 @@ def get_klasifikacija_nesrece(sifrant):
 	    "H":"S HUDO TELESNO POŠKODBO",
 	    "L":"Z LAŽJO TELESNO POŠKODBO",
 	    "S":"S SMRTNIM IZIDOM",
-	    "U":"BREZ POŠKODBE-UZ",
+	    "U":"BREZ POŠKODBE-PN KOT UZ",
 	    "P":"SLED POŠKODBE"
    	}[sifrant]
 
@@ -144,7 +145,7 @@ def get_vzrok_nesrece(sifrant):
 
 def get_tip_nesrece(sifrant):
 	return{
-		"¬T":"ZAČASNA REŠITEV",
+		"¬T":"ČELNO TRČENJE",
 	    "ČT":"ČELNO TRČENJE",
     	"BT":"BOČNO TRČENJE",
     	"NT":"NALETNO TRČENJE",
@@ -203,7 +204,9 @@ def get_stanje_povrsine_vozisca(sifrant):
 def get_v_naselju(sifrant):
 	return{
 		"0": "N",
-		"1": "D"
+		"1": "D",
+		"N": "N",
+		"D": "D"
 	}[sifrant]
 
 ##############################################################
