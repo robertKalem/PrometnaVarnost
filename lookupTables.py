@@ -219,8 +219,12 @@ def get_drzavljanstvo_osebe(sifrant):
 		3: "HRVAŠKA",
 		4: "MAKEDONIJA",
 		5: "SLOVENIJA",
+		500: "SLOVENIJA",
 		6: "SRBIJA",
 		8: "KOSOVO",
+		10: "NAPACEN VNOS",
+		0:"NAPACEN VNOS",
+		100: "NAPACEN VNOS",
 		101: "ALBANIJA",
 		102: "BOLGARIJA",
 		104: "MADŽARSKA",
@@ -474,6 +478,7 @@ def get_drzavljanstvo_osebe(sifrant):
 		997: "IZMIŠLJENA DRŽAVA",
 		998: "ZDRUŽENI NARODI",
 		999: "NEZNANO"
+
 	}[sifrant]
 
 def get_poskodba_osebe(sifrant):
@@ -482,7 +487,10 @@ def get_poskodba_osebe(sifrant):
 	    "H":"HUDA TELESNA POŠKODBA",
 	    "L":"LAŽJA TELESNA POŠKODBA",
 	    "S":"SMRT",
-	    "U":"BREZ POŠKODBE-UZ"
+	    "U":"BREZ POŠKODBE-UZ",
+	    "P": "NAPACEN VNOS",
+	    "\n": "NAPACEN VNOS",
+	    "":"BREZ POŠKODBE"
    	}[sifrant]
 
 def get_vrsta_udelezenca(sifrant):
@@ -509,7 +517,41 @@ def get_vrsta_udelezenca(sifrant):
 		"SV": "VOZNIK SPECIALNEGA VOZILA",
 		"TK": "VOZNIK TRIKOLESA",
 		"TR": "VOZNIK TRAKTORJA",
-		"TV": "VOZNIK TOVORNEGA VOZILA"
+		"TV": "VOZNIK TOVORNEGA VOZILA",
+		"L":"NEZNANO",
+		"": "NAPACEN VNOS"
    	}[sifrant]
+
+def get_vloga_udelezenca(sifrant):
+	return {
+		"1": "POVZROČITELJ",
+		"0": "UDELEŽENEC"
+	}[sifrant]
+
+def get_vloga_udelezenca_za1995(sifrant):
+	return {
+		"D": "POVZROČITELJ",
+		"N": "UDELEŽENEC",
+		" ": "UDELEŽENEC"
+	}[sifrant]
+
+def get_spol_udelezenca(sifrant):
+	return {
+		"1": "MOŠKI",
+		"2": "ŽENSKI",
+		"0": "NAPACEN VNOS"
+	}[sifrant]
+
+def get_uporaba_pasu(sifrant):
+	return {
+		"1": "DA",
+		"0": "NE",
+		"2": "NAPACEN VNOS",
+		"*": "NAPACEN VNOS",
+		"D": "DA",
+		"N": "NE",
+		"": "NI VNOSA"
+	}[sifrant]
+
 
 
